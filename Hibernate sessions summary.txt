@@ -1,0 +1,203 @@
+Summary :
+=========
+Day 1:
+-------------------------------------
+1)Hibernate features 
+	Translates to DB dependent queries
+	Built in transaction support
+	Connection pool support
+	Cache support ( 2 levels)
+	Throws unchecked exceptions
+2)Configuration: 
+	Parse the configuration
+	By default it tries to parse hibernate.properties file, if not available hibernate.cfg.xml
+	If you does not configure default files then you should provide the path of your configuration file
+3)SessionFactory: Long lived, Immutable object and associates with connection pool
+4)Session: Short lived, not thread safe, associates with connection object
+5)@Id, @Column(nullable, unique), Identity generator, @Table, @Entity
+6)@Column, @Table are not mandatory
+7)save (inserts new record, returns Serializable object)
+8)persist (inserts new record, return type is void)
+9)save vs persist (return type)
+10)update (Considers zero, StaleStateException with non existed record)
+11)saveOrUpdate
+	If passes primary key then it will try to update the record
+	If passes wrong primary key then it will throws StaleStateException
+	If you does not pass primary key it will tries to insert the record
+12)hbm2ddl.auto
+	create: drops and create the tables
+	update: update the tables and new columns
+	validate: validates the tables and its columns
+	create-drop: creates and drops tables, columns
+13)show_sql property
+14)format_sql property
+15)auto commit property
+	
+
+Day 2:
+-----------------------------------------
+1)merge
+	Returns persistent object
+	inserts or updates the record
+	generates two queries(select, insert/update)
+	Does not throw any exception
+2)saveOrUpdate vs merge
+3)get(-,-), load(-,-)
+4)get vs load
+5)transient, persistent, detached states
+6)evict(obj), clear()
+7)Once Transaction committed, you cannot use the same transaction obj anymore
+8)Criteria API
+9)Restrictions(like, ilike)
+
+Day 3:
+------------------------------------------
+1)Restrictions(or, and, eq, idEq, like, ilike, in ...)
+2)sqlRestriction
+	Native SQL conditions
+3)Criterion, Junction, Disjunction, Conjunction, SimpleExpression, LogicalExpression
+4)Projections for scalar queries
+5)Projections for aggregate queries 
+6)Pagenation using setFirstResult(), setMaxResults()
+
+Day 4:
+---------------------------
+1)HQL
+	can use for DML such as select, update, delete queries
+	can use for insert rows from one table to another table, we cannot insert rows
+	Not for DDL
+	list()
+	executeUpdate()
+	Iterator for lazy loading
+	N+1 problem	
+2)Native SQL
+	can use for both DML, DDL
+	executeUpdate()
+	does not support lazy loading
+	addEntity()
+3)Named parameters, positional parameters in HQL, Native SQL
+4)Named queries
+	@NamedQuery, @NamedQueries, @NamedNativeQuery, @NamedNativeQueries
+	can write at any pojo
+5)Filters
+	@Filters, @Filter, @FilterDef, @ParamDef
+	Filters should write at POJO, FilterDefs can write anywhere(at other hibernate POJO) 
+	enabling and disabling filter
+	
+Day 5:
+----------------------------
+1)ManyToOne
+	We can use the below one for both unidirectional as well as bidirectional
+	//@ManyToOne
+    //@JoinColumn(name="COMPANY_ID")
+    //private Company company;
+	
+	References:
+	http://websystique.com/hibernate/hibernate-many-to-one-unidirectional-annotation-example/
+	http://websystique.com/hibernate/hibernate-many-to-one-bidirectional-annotation-example/
+
+2)OneToMany
+	we can use the below one only for bidirectional
+	//@OneToMany(mappedBy="company")
+	//private Set<Employee> employees;
+	
+	we can use the below one for unidirectional
+	//@OneToMany
+	//@JoinColumn(name="COMPANY_ID")
+	//private Set<Employee> employees;
+		
+	References:
+	http://websystique.com/hibernate/hibernate-many-to-one-bidirectional-annotation-example/
+	http://stackoverflow.com/questions/12038380/how-to-define-unidirectional-onetomany-relationship-in-jpa
+3)ManyToMany
+	we can use the below one only for bidirectional
+	//@ManyToMany(mappedBy = "employees")
+    //private Set<Project> projects;
+	
+	we can use the below one for both unidirectional as well as bidirectional
+	//@ManyToMany
+	//@JoinTable(name = "EMP_PROJECTS", 
+	//joinColumns = {@JoinColumn(name = "PROJECT_ID")},
+	//inverseJoinColumns = { @JoinColumn(name = "EMP_ID") })
+	//Set<Employee> employees;
+	
+	
+	References:
+	http://websystique.com/hibernate/hibernate-many-to-many-unidirectional-annotation-example/
+	http://websystique.com/hibernate/hibernate-many-to-many-bidirectional-annotation-example/
+4)cascading
+	Persist operations on parent POJO reflects on child POJO
+	Need to care about ALL, REMOVE
+5)When to use load() and get()
+	EX: If you need primary key of one entity to save another entity use load()
+
+Day 6:
+--------------------------
+1) OneToOne
+	a)Using foreign key association:
+	
+	//For unidirectional and bidirectional
+	@OneToOne
+    @JoinColumn(name="ADDRESS_ID")
+    private Address address;
+	
+	//For bidirectional
+	@OneToOne(mappedBy = "address")
+	private Employee employee;
+	
+	References:
+	http://websystique.com/hibernate/hibernate-one-to-one-unidirectional-with-foreign-key-associations-annotation-example/
+	http://www.javainterviewpoint.com/hibernate-one-to-one-bidirectional-mapping-foreign-key/
+	
+	b)Using shared primary key:(Bi-directional)
+
+	//For unidirectional and bidirectional
+	@OneToOne
+	@PrimaryKeyJoinColumn
+	private Employee employee;
+	
+	//For bidirectional
+	@OneToOne(mappedBy="employee", cascade=CascadeType.ALL)
+	private Address address;
+	
+	References:
+	http://websystique.com/hibernate/hibernate-one-to-one-bidirectional-with-shared-primary-key-annotation-example/
+	
+	
+Day 7:
+---------------------------------
+Fetching Strategies
+1)JPA	
+	FetchType.LAZY - Loads associated records lazily
+	FetchType.EAGER - Loads associated records eagerly
+2)Hibernate
+	FetchMode.JOIN
+		same as FetchType.EAGER
+		Generates 1 query 
+		Ex: Fetch companies and its employees in a single query
+	FetchMode.SELECT
+		same as FetchType.LAZY
+		Generates 1+N queries
+		Ex: Fetch 'N' companies in one query and Employees of N companies in N queries
+	FetchMode.SUBSELECT
+		Generates 1+1 queries
+		Ex: Fetch 'N' companies in one query and Employees of N companies in one query
+	BatchSize
+		Generates 1+N/size queries
+		Ex: Let us suppose if there are 6 companies and each company having 100 employees. And if you mentioned the batchsize = 2 then it will generate one query to get all 6 companies and it will get employees of two companies at a time and repeats the same process for 3 times to fetch 6 companies employees. So Total 1+6/2 = 1+3 queries
+
+3)@LazyCollection(LazyCollectionOption.EXTRA)
+
+
+Pending:
+--------------------------------
+Composite Primary key in Hibernate (@EmbeddedId, @Embeddable)
+Callable statements through Hibernate and JDBC
+Detached Criteria (subqueries and joins)
+Joins in HQL
+getCurrentSession  vs openSession
+Local Transactions and Global transactions
+Locking techniques
+Hibernate Caching
+What is service and service registry?
+

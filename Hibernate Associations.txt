@@ -1,0 +1,95 @@
+Hibernate:
+===========
+References:
+-----------
+http://websystique.com/hibernate/hibernate-many-to-one-unidirectional-annotation-example/
+http://websystique.com/hibernate/hibernate-many-to-one-bidirectional-annotation-example/
+https://deepeshdarshan.wordpress.com/2012/11/28/hibernate-one-to-many-unidirectional-mapping-using-annotation/
+http://www.codejava.net/frameworks/hibernate/hibernate-one-to-many-association-on-join-table-annotations-example
+http://stackoverflow.com/questions/12038380/how-to-define-unidirectional-onetomany-relationship-in-jpa
+
+
+@OneToMany(mappedBy)		-->	Bi-directional
+@ManyToone with @Joincolumn	-->	Bi-directional/Uni-directional
+@OneToMany with @JoinTable	-->	Uni-directional(Using 3rd table)
+@JoinTable(
+            name="3rdTableName",
+            joinColumns = @JoinColumn( name="OwnId"),
+            inverseJoinColumns = @JoinColumn( name="ForeignKey")
+@OneToMany with @Joincolumn	-->	Uni-directional (without 3rd table and not a better option, saying not generates optimized query***doubt)	
+@OneToMany
+@JoinColumn(name="ForeignKeyId", referencedColumnName="OwnId")
+									(optional)
+
+cascade, Fetch, @ManyToOne(orderby)
+
+One to One Association:
+------------------------
+
+@OneToOne(mappedBy)		-->	Bi-directional
+@PrimaryKeyJoincolumn		-->	Bi-directional/Unidirectional
+@GenericGenerator(name = "generator", strategy = "foreign",
+	parameters = @Parameter(name = "property", value = "stock"))
+	@Id
+	@GeneratedValue(generator = "generator")
+	@Column(name = "STOCK_ID", unique = true, nullable = false)
+
+@OneToOne with @Joincolumn	-->	Uni-directional
+
+
+3)Using foreign key association:(Uni-directional)
+
+http://websystique.com/hibernate/hibernate-one-to-one-unidirectional-with-foreign-key-associations-annotation-example/
+
+@OneToOne
+@JoinColumn(name="ACCOUNT_ID")
+private AccountEntity account;
+
+@OneToOne(mappedBy="account")
+private EmployeeEntity employee;
+
+2)Using a common join table:(Uni-directional)
+
+@OneToOne(cascade = CascadeType.ALL)
+@JoinTable(name="EMPLOYEE_ACCCOUNT", joinColumns = @JoinColumn(name="EMPLOYEE_ID"),
+inverseJoinColumns = @JoinColumn(name="ACCOUNT_ID"))
+private AccountEntity account;
+
+1)Using shared primary key:(Bi-directional)
+
+http://websystique.com/hibernate/hibernate-one-to-one-bidirectional-with-shared-primary-key-annotation-example/
+
+@OneToOne(cascade = CascadeType.ALL)
+@PrimaryKeyJoinColumn
+private AccountEntity account;
+
+@OneToOne(mappedBy="account", cascade=CascadeType.ALL)
+private EmployeeEntity employee;
+
+
+Many to Many Association:
+-----------------------------
+http://websystique.com/hibernate/hibernate-many-to-many-unidirectional-annotation-example/
+http://websystique.com/hibernate/hibernate-many-to-many-bidirectional-annotation-example/
+
+Unidirection:
+
+@ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@JoinTable(name = "stock_category", catalog = "mkyongdb", joinColumns = {
+			@JoinColumn(name = "STOCK_ID", nullable = false, updatable = false) },
+			inverseJoinColumns = { @JoinColumn(name = "CATEGORY_ID",
+					nullable = false, updatable = false) })
+
+Bidirectional:
+
+@ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@JoinTable(name = "stock_category", catalog = "mkyongdb", joinColumns = {
+			@JoinColumn(name = "STOCK_ID", nullable = false, updatable = false) },
+			inverseJoinColumns = { @JoinColumn(name = "CATEGORY_ID",
+					nullable = false, updatable = false) })
+and
+@ManyToMany(fetch = FetchType.LAZY, mappedBy = "categories")
+
+
+
+FlushMode.COMMITT, AUTO, MANUAL

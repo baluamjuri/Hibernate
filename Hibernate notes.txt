@@ -1,0 +1,62 @@
+opensession vs getcurrentsession
+https://www.java2blog.com/difference-opensession-getcurrentsession-hibernate/
+
+If we talk about SessionFactory.openSession()
+
+It always create new Session object.
+You need to explicitly flush and close session objects.
+In single threaded environment it is slower than getCurrentSession.
+You do not need to configure any property to call this method.
+And If we talk about SessionFactory.getCurrentSession()
+
+It creates a new Session if not exists, else use same session which is in current hibernate context.
+You do not need to flush and close session objects, it will be automatically taken care by Hibernate internally.
+In single threaded environment it is faster than openSession.
+You need to configure additional property. "hibernate.current_session_context_class" to call getCurrentSession method, otherwise it will throw an exception.
+
+Values for the current_session_context_class will be,
+thread(local transaction)
+managed
+jta(global transaction)
+1. thread - session bound to a thread, for single thread execution if you call a getCurrentSession() then it will return you a same session object.
+
+2. managed - this provided for managing session from some external entity, something like intercepter. maintaining session in a ThreadLocal same as a "thread" type, but having a different methods like bind(), unbind(), hasbind() to be used by external entity to maintain session in a context.
+
+3. jta - session will be bound to a transaction, as we says a transaction then we need application server for using this context class.
+---------------------------------------
+
+http://jpwh.org/examples/hia/caveatemptor/src/java/org/hibernate/auction/persistence/HibernateUtil.java
+https://stackoverflow.com/questions/28756059/when-and-where-should-i-get-a-new-session-from-hibernate-4-3-8-final-in-a-spring
+
+http://websystique.com/springmvc/spring-4-mvc-and-hibernate4-integration-example-using-annotations/
+------------------------------------------
+@Id
+	@SequenceGenerator(name = "SEQ", sequenceName = "CST.CST_ENTITY_DATA_SEQ", allocationSize = 1)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ")	
+	@Column(name = "MNEMONIC_DATA_ID")
+	private Integer mnemonicDataId;
+	
+-----------------------------------------------
+hibernate.hbm2ddl.auto" value="update will add a db column that doesn't already exist.
+
+hibernate.hbm2ddl.auto" value="update will not delete a db column that is removed/no longer in your entity.
+
+hibernate.hbm2ddl.auto" value="update will not modify a db column that has already been created.
+-----------------------------------------------
+
+ <!-- Disable the second-level cache  -->
+        <property name="cache.provider_class">org.hibernate.cache.internal.NoCacheProvider</property>
+
+https://vladmihalcea.com/2015/02/24/hibernate-locking-patterns-how-do-pessimistic_read-and-pessimistic_write-work/
+
+LockMode	
+	//OPTIMISTIC_FORCE_INCREMENT
+	//PESSIMISTIC_FORCE_INCREMENT(FORCE) - Similar to UPGRADE, but used for versioned environment
+	//PESSIMISTIC_READ
+	//PESSIMISTIC_WRITE(UPGRADE)
+	//OPTIMISTIC
+	//WRITE (not for lock() or load())
+	READ
+	//UPGRADE_NOWAIT (supporting by oracle)
+	//UPGRADE_SKIPLOCKED (supporting by oracle)
+	NONE

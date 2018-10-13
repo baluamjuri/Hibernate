@@ -1,0 +1,60 @@
+https://www.youtube.com/watch?v=Dk4y8-Q9tOM
+
+In nonmanaged environment, the JDBC API is used to mark transaction boundaries. You begin a transaction by calling setAutocommit(false) on a JDBC connection and end it by calling commit(). You may at any time, force an immediate rollback by calling rollback().
+
+In a system that manipulates data in multiple databases, a particular work involves access to more than one resource(data-source). In this case we can't achieve atomicity with jdbc alone. You need a transaction manager that can handle several resources in one system transaction. Such transaction processing systems expose the JTA for interaction with the developer. The main API in JTA is UserTransaction interface with methods to begin() and commit() a system transaction.
+
+JTS - Java Transaction Service
+JTA - Java Transaction API
+javax.transaction.UserTransaction
+
+Transactions
+1)Local Transactions: Transactions under one DB
+2)Global Transactions: Transactions under multiple DBS
+
+
+When there are multiple DBs, there are Global transactions.
+JTA, JTS are the specifications given by Sun to application servers that how to deal transactions.
+For One Data-source of DB, there will be one Resource Manager. For Multiple Data-sources there will be multiple resource managers
+For Multiple Resource managers there will be one Transaction Manager.
+These Data-sources, Resource Managers, Transaction Manager will be implement by Application servers.
+
+JTS give specifications to implement resource manager and transaction manager.
+JTA give specifications to use JTS. Every application server has its own implementation of JTA and JTS.
+To use transaction manager, you need UserTransaction object which is part of JTA.
+How to create UserTransaction object is  abstracted from the user. 
+Application servers will create UserTransaction object and keep in JNDI. 
+By default the usertransaction JNDI name is java:/usertransaction as per JEE specifications
+Using UserTransaction object you can commit or rollback the transaction.
+For every Data-source there is an option to enable global transaction. Transaction manager register all the resource managers
+
+
+org.hibernate.context.CurrentSessionContext
+hibernate.current_session_context_class, values are jta, thread, managed
+
+Hibernate comes with three implementations of CurrentSessionContext
+1)JTASessionContext(jta)
+2)ThreadLocalSessionContext(thread)
+3)ManagedSessionContext(managed)
+
+org.hibernate.transaction.TransactionManagerLookup (BackwardCompatibility)
+hibernate.transaction.manager_lookup_class
+implementations are below:
+JbossTransactionManagerLookup
+WeblogicTransactionManagerLookup
+
+hibernate.transaction.factory_class (for stand alone application)
+by default org.hibernate.transaction.JDBCTransactionFactory
+other org.hibernate.transaction.JTATransactionFactory
+
+example for configure for JTA
+------------------------------
+hibernate.connection.datasource=java:/MyDatasource
+hibernate.transaction.factory_class=org.hibernate.transaction.JTATransactionFactory
+hibernate.transaction.manager_lookup_class=JbossTransactionManagerLookup
+
+example of configure your own JNDI-bound session factory:
+---------------------------------------------
+hibernate.session_factory_name=java:/hibernate/MySessionFactory
+hibernate.jndi.class=com.sun.jndi.fscontext.RefFSContextFactory
+hibernate.jndi.url=file:/auction/jndi
