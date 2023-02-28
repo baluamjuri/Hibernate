@@ -18,6 +18,11 @@ Day 1:
   VO vs DTO vs BO (https://www.youtube.com/watch?v=GOvak6awDrI - VO Class vs BO Class vs DTO Class | Advanced Java Tutorial)
   Persistant java bean requirements - https://docs.oracle.com/cd/E19798-01/821-1841/bnbqb/index.html
 5)@Id, @Column(nullable, unique), Identity generator, @Table, @Entity
+Ex:	@Id
+	@SequenceGenerator(name = "SEQ", sequenceName = "CST.CST_ENTITY_DATA_SEQ", allocationSize = 1)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ")	
+	@Column(name = "MNEMONIC_DATA_ID")
+	private Integer mnemonicDataId;
 6)@Column, @Table are not mandatory
 7)transient, persistent, detached states(https://www.baeldung.com/hibernate-save-persist-update-merge-saveorupdate)
 	transient -> persistent : save, persist, merge, saveOrUpdate
@@ -198,11 +203,40 @@ Fetching Strategies
 
 Pending:
 --------------------------------
+opensession vs getcurrentsession
+	https://www.java2blog.com/difference-opensession-getcurrentsession-hibernate/
+
+	If we talk about SessionFactory.openSession()
+
+	It always create new Session object.
+	You need to explicitly flush and close session objects.
+	In single threaded environment it is slower than getCurrentSession.
+	You do not need to configure any property to call this method.
+	And If we talk about SessionFactory.getCurrentSession()
+
+	It creates a new Session if not exists, else use same session which is in current hibernate context.
+	You do not need to flush and close session objects, it will be automatically taken care by Hibernate internally.
+	In single threaded environment it is faster than openSession.
+	You need to configure additional property. "hibernate.current_session_context_class" to call getCurrentSession method, otherwise it will throw an exception.
+
+	Values for the current_session_context_class will be,
+	thread(local transaction)
+	managed
+	jta(global transaction)
+	1. thread - session bound to a thread, for single thread execution if you call a getCurrentSession() then it will return you a same session object.
+
+	2. managed - this provided for managing session from some external entity, something like intercepter. maintaining session in a ThreadLocal same as a "thread" 
+	type, but having a different methods like bind(), unbind(), hasbind() to be used by external entity to maintain session in a context.
+
+	3. jta - session will be bound to a transaction, as we says a transaction then we need application server for using this context class.
+	
+	* http://jpwh.org/examples/hia/caveatemptor/src/java/org/hibernate/auction/persistence/HibernateUtil.java
+	
 Inheritance strategies in HB:
-@MappedSuperclass – the parent classes, can't be entities
-InheritanceType.SINGLE_TABLE (Table per class Heirarchy)– The entities from different classes with a common ancestor are placed in a single table.
-InheritanceType.JOINED (Table per subclass) – Each class has its table, and querying a subclass entity requires joining the tables.
-InheritanceType.TABLE_PER_CLASS (Table per concrete class ) - All the properties of a class are in its table, so no join is required.
+	@MappedSuperclass – the parent classes, can't be entities
+	InheritanceType.SINGLE_TABLE (Table per class Heirarchy)– The entities from different classes with a common ancestor are placed in a single table.
+	InheritanceType.JOINED (Table per subclass) – Each class has its table, and querying a subclass entity requires joining the tables.
+	InheritanceType.TABLE_PER_CLASS (Table per concrete class ) - All the properties of a class are in its table, so no join is required.
 
 Composite Primary key in Hibernate (@EmbeddedId, @Embeddable)
 Callable statements through Hibernate and JDBC
