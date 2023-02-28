@@ -35,6 +35,9 @@ Ex:	@Id
 	If passes primary key then it will try to update the record
 	If passes wrong primary key then it will throws StaleStateException
 	If you does not pass primary key it will tries to insert the record
+	
+*** 	persist, merge, remove are JPA methods
+	save, update, saveOrUpdate, delete are hibernate methods
 12)hbm2ddl.auto
 	create: drops and create the tables
 	update: update the tables and new columns
