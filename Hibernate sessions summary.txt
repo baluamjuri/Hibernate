@@ -14,12 +14,18 @@ Day 1:
 	If you does not configure default files then you should provide the path of your configuration file
 3)SessionFactory: Long lived, Immutable object and associates with connection pool
 4)Session: Short lived, not thread safe, associates with connection object
+5)POJO vs EJB (https://www.youtube.com/watch?v=0Y0A-QCSkjE - POJO Class and POJI | Hibernate Tutorial | Mr.Natraj)
+  VO vs DTO vs BO (https://www.youtube.com/watch?v=GOvak6awDrI - VO Class vs BO Class vs DTO Class | Advanced Java Tutorial)
+  Persistant java bean requirements - https://docs.oracle.com/cd/E19798-01/821-1841/bnbqb/index.html
 5)@Id, @Column(nullable, unique), Identity generator, @Table, @Entity
 6)@Column, @Table are not mandatory
-7)save (inserts new record, returns Serializable object)
-8)persist (inserts new record, return type is void)
-9)save vs persist (return type)
-10)update (Considers zero, StaleStateException with non existed record)
+7)transient, persistent, detached states(https://www.baeldung.com/hibernate-save-persist-update-merge-saveorupdate)
+	transient -> persistent : save, persist, merge, saveOrUpdate
+	persistent -> detached : evict(-), clear()
+	detached -> persistent : merge, saveOrUpdate, update
+8)persist - inserts new record in transient state if it is already in cache then no action, return type is void
+9)save - inserts new record every time in transient state, returns Serializable object(primary key)
+10)update
 11)saveOrUpdate
 	If passes primary key then it will try to update the record
 	If passes wrong primary key then it will throws StaleStateException
@@ -42,13 +48,14 @@ Day 2:
 	generates two queries(select, insert/update)
 	Does not throw any exception
 2)saveOrUpdate vs merge
-3)get(-,-), load(-,-)
+3)get(.class,id), load(.class,id), load(obj, id)
 4)get vs load
-5)transient, persistent, detached states
-6)evict(obj), clear()
-7)Once Transaction committed, you cannot use the same transaction obj anymore
-8)Criteria API
-9)Restrictions(like, ilike)
+	eagerly loads | lazy load, uses proxy, loads when used | eager loads
+	return value when no object: null | ObjectNotFoundException
+5)evict(obj), clear()
+6)Once Transaction committed, you cannot use the same transaction obj anymore
+7)Criteria API
+8)Restrictions(like, ilike)
 
 Day 3:
 ------------------------------------------
@@ -191,6 +198,12 @@ Fetching Strategies
 
 Pending:
 --------------------------------
+Inheritance strategies in HB:
+@MappedSuperclass – the parent classes, can't be entities
+InheritanceType.SINGLE_TABLE (Table per class Heirarchy)– The entities from different classes with a common ancestor are placed in a single table.
+InheritanceType.JOINED (Table per subclass) – Each class has its table, and querying a subclass entity requires joining the tables.
+InheritanceType.TABLE_PER_CLASS (Table per concrete class ) - All the properties of a class are in its table, so no join is required.
+
 Composite Primary key in Hibernate (@EmbeddedId, @Embeddable)
 Callable statements through Hibernate and JDBC
 Detached Criteria (subqueries and joins)
@@ -200,4 +213,3 @@ Local Transactions and Global transactions
 Locking techniques
 Hibernate Caching
 What is service and service registry?
-
