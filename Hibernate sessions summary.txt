@@ -28,16 +28,16 @@ Ex:	@Id
 	transient -> persistent : save, persist, merge, saveOrUpdate
 	persistent -> detached : evict(-), clear()
 	detached -> persistent : merge, saveOrUpdate, update
-8)persist - inserts new record in transient state if it is already in cache then no action, return type is void
+8)persist - inserts new record in transient state if it is already in cache then no action, return type is void, throws EntityExistsException if the entity being persisted already exists in the database with the same identifier
 9)save - inserts new record every time in transient state, returns Serializable object(primary key)
-10)update
+10)update - makes detached entities to persistent
 11)saveOrUpdate
-	If passes primary key then it will try to update the record
-	If passes wrong primary key then it will throws StaleStateException
-	If you does not pass primary key it will tries to insert the record
+	If you pass existed primary key then it will try to update the record
+	If you does not pass primary key or non-existed pk it will tries to insert the record
 	
 *** 	persist, merge, remove are JPA methods
 	save, update, saveOrUpdate, delete are hibernate methods
+ 	Deprecated from HB 6: save, update, saveOrUpdate
 12)hbm2ddl.auto
 	create: drops and create the tables
 	update: update the tables and new columns
@@ -51,10 +51,11 @@ Ex:	@Id
 Day 2:
 -----------------------------------------
 1)merge
-	Returns persistent object
+	Returns persistent object, you should use this object further
 	inserts or updates the record
 	generates two queries(select, insert/update)
-	Does not throw any exception
+	Should not use in persistent state. It is generally not recommended and can lead to unexpected behavior or unnecessary database updates.
+	When you call merge on a persistent entity, Hibernate will detach the entity from the current session. This means the entity is no longer managed by the session, and any changes made to the entity after detaching won't be tracked by the session. You may can use the returned object instead passed object to the method.
 2)saveOrUpdate vs merge
 3)get(.class,id), load(.class,id), load(obj, id)
 4)get vs load
@@ -237,8 +238,8 @@ opensession vs getcurrentsession
 	
 Inheritance strategies in HB:
 	@MappedSuperclass – the parent classes, can't be entities
-	InheritanceType.SINGLE_TABLE (Table per class Heirarchy)– The entities from different classes with a common ancestor are placed in a single table.
-	InheritanceType.JOINED (Table per subclass) – Each class has its table, and querying a subclass entity requires joining the tables.
+	InheritanceType.SINGLE_TABLE (Uses Discriminator column to differentiate)– The entities from different classes with a common ancestor are placed in a single table. 
+	InheritanceType.JOINED (Inheritance is also with tables) – Each class has its table, and querying a subclass entity requires joining the tables.
 	InheritanceType.TABLE_PER_CLASS (Table per concrete class ) - All the properties of a class are in its table, so no join is required.
 
 Composite Primary key in Hibernate (@EmbeddedId, @Embeddable)
