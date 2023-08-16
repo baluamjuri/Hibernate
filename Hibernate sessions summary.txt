@@ -57,6 +57,16 @@ Day 2:
 	Should not use in persistent state. It is generally not recommended and can lead to unexpected behavior or unnecessary database updates.
 	When you call merge on a persistent entity, Hibernate will detach the entity from the current session. This means the entity is no longer managed by the session, and any changes made to the entity after detaching won't be tracked by the session. You may can use the returned object instead passed object to the method.
 2)saveOrUpdate vs merge
+update method:
+	ObjectNotFoundException: This exception may be thrown if the entity being updated is not found in the database. Also while calling load with wrong pk
+persist method:
+	EntityExistsException: This exception may be thrown if the entity being persisted already exists in the database with the same identifier (primary key).
+merge method:
+	NonUniqueObjectException: This exception may be thrown if the merging process results in a conflict with an already associated persistent object in the current session.
+
+HibernateException: This is a general exception that can be thrown if there is a problem with the Hibernate session or any other internal issue.
+DataAccessException: This is a more generic exception for data access issues that can be thrown by some Hibernate implementations.
+
 3)get(.class,id), load(.class,id), load(obj, id)
 4)get vs load
 	eagerly loads | lazy load, uses proxy, loads when used | eager loads
