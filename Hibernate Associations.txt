@@ -89,7 +89,43 @@ Bidirectional:
 					nullable = false, updatable = false) })
 and
 @ManyToMany(fetch = FetchType.LAZY, mappedBy = "categories")
+-----------------------------------------------------------------------
+Many to many association without @ManyToMany 
+@Entity
+public class Enrollment {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
+    @ManyToOne
+    private Student student;
+
+    @ManyToOne
+    private Course course;
+
+    // Other properties and getters/setters...
+}
+
+@Entity
+public class Student {
+    // ...
+
+    @OneToMany(mappedBy = "student")
+    private Set<Enrollment> enrollments = new HashSet<>();
+
+    // Other methods...
+}
+
+@Entity
+public class Course {
+    // ...
+
+    @OneToMany(mappedBy = "course")
+    private Set<Enrollment> enrollments = new HashSet<>();
+
+    // Other methods...
+}
+------------------------------------------------------------------
 
 
 FlushMode.COMMITT, AUTO, MANUAL
