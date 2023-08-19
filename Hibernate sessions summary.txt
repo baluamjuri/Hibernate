@@ -217,6 +217,7 @@ Fetching Strategies
 
 Pending:
 --------------------------------
+@Where
 opensession vs getcurrentsession
 	https://www.java2blog.com/difference-opensession-getcurrentsession-hibernate/
 
