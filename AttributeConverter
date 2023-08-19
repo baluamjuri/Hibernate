@@ -1,0 +1,82 @@
+package com.amjuri.b2b.payments.entity;
+
+import javax.persistence.AttributeConverter;
+import javax.persistence.Converter;
+
+import org.apache.commons.lang3.StringUtils;
+
+import com.amjuri.b2b.payments.action.ActionCode;
+
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@Converter(autoApply = true)
+public class ActionCodeConverter implements AttributeConverter<ActionCode, String> {
+
+	@Override
+	public String convertToDatabaseColumn(ActionCode actionCode) {
+		return actionCode == null ? null : actionCode.toString();
+	}
+
+	@Override
+	public ActionCode convertToEntityAttribute(String actionCodeString) {
+		if (StringUtils.isBlank(actionCodeString) || "null".equalsIgnoreCase(actionCodeString))
+			return null;
+		else {
+			try {
+				return ActionCode.valueOf(actionCodeString);
+			}catch(IllegalArgumentException ex) {
+				log.error("Sync issue between application and DB config regarding action code: {}", actionCodeString);
+				return ActionCode.WRONG_CONFIG;
+			}
+		}
+	}
+
+}
+-----------------------------------------------------
+package com.amjuri.b2b.payments.entity;
+
+import java.io.Serializable;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+import org.hibernate.annotations.Where;
+
+import com.amjuri.b2b.payments.action.ActionCode;
+
+import lombok.Getter;
+import lombok.Setter;
+
+
+@Entity
+@Table(name = "action_groups_sequences")
+@Getter
+@Setter
+@Where(clause = "status='A'")
+public class ActionEdge implements Serializable {
+	private static final long serialVersionUID = 35695244592636L;
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "actn_grp_seq_id")
+	private Long id;
+
+	@Column(name = "parent_actn_cd")
+	private ActionCode parentActionCode;
+
+	@Column(name = "child_actn_cd")
+	private ActionCode childActionCode;
+
+	@Column(name = "actn_grp_cd")
+	private String groupCode;
+
+	@Column(name = "status", columnDefinition = "char(1) default 'A'")
+	private char status;
+}
+
+
